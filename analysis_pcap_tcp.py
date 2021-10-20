@@ -336,8 +336,32 @@ class Analyzer:
             answer = f'Flow: {flowNumber + 1}'
             print(answer)
 
-    def solvePartC(self):
-        pass
+            ackCounts = {}
+            seqCounts = {}
+            for packet in self.flowStream[flow]:
+                if packet.srcIP == receiver:
+                    if packet.ack not in ackCounts:
+                        ackCounts[packet.ack] = 1
+                    else:
+                        ackCounts[packet.ack] += 1
+                if packet.srcIP == sender:
+                    if packet.seq not in seqCounts:
+                        seqCounts[packet.seq] = 1
+                    else:
+                        seqCounts[packet.seq] += 1
+
+            totalPacketsLost = 0
+            tripleDuplicateLoss = 0
+            for key in seqCounts:
+                totalPacketsLost += seqCounts[key] - 1
+                if key in ackCounts:
+                    if ackCounts[key] >= 3:
+                        tripleDuplicateLoss += seqCounts[key] - 1
+
+            timeoutPackets = totalPacketsLost - tripleDuplicateLoss
+            answer = f'Packets lost due to triple duplicate ack = {tripleDuplicateLoss}\n'
+            answer += f'Packets lost due to timeout = {timeoutPackets}\n'
+            print(answer)
 
 
 if __name__ == '__main__':
